@@ -728,6 +728,15 @@ button:active:not(:disabled),.tx:active,.close-row:active{transform:scale(.97)}
           <button type="button" data-theme-v="dark" aria-pressed="false">Dark</button>
         </div>
     </section>
+    <section class="block" aria-labelledby="bk-title" id="set-backup" hidden>
+      <h2 class="section-title" id="bk-title">Backup</h2>
+      <p class="muted" style="font-size:14px;margin-top:4px">Save a copy of your data as a file, or move it to another device.</p>
+      <div style="margin-top:8px;border-top:1px solid var(--line)">
+        <button type="button" class="close-row" id="bk-export" style="margin-top:0;border-top:0"><span><b>Save a backup</b><small>Downloads a file with all your entries</small></span><span class="go">›</span></button>
+        <button type="button" class="close-row" id="bk-import" style="margin-top:0;border-top:0"><span><b>Restore from a file</b><small id="bk-import-sub">Replaces the data on this device</small></span><span class="go">›</span></button>
+        <input type="file" id="bk-file" accept=".json,application/json" hidden>
+      </div>
+    </section>
     <p class="msg" id="set-msg" role="alert"></p>
   </main>
 
@@ -844,7 +853,7 @@ const I18N = {
 
   str: {
     de: {
-      'Your data is saved only on this device, in this browser.': 'Deine Daten werden nur auf diesem Gerät gespeichert, in diesem Browser.', 'Settings': 'Einstellungen', 'Appearance': 'Darstellung', 'Changes are saved right away.': 'Änderungen werden sofort gespeichert.', 'Mode': 'Modus', 'Light': 'Hell', 'Dark': 'Dunkel', 'Fixed expense name': 'Name der Fixkosten', 'Close ›': 'Abschließen ›', 'Edit ›': 'Bearbeiten ›', 'Home': 'Start', 'Stats': 'Statistik', 'Budgets': 'Budgets', 'Nest egg': 'Reserve', 'Savings': 'Ersparnisse',
+      'Backup': 'Sicherung', 'Save a copy of your data as a file, or move it to another device.': 'Speichere eine Kopie deiner Daten als Datei oder übertrage sie auf ein anderes Gerät.', 'Save a backup': 'Sicherung speichern', 'Downloads a file with all your entries': 'Lädt eine Datei mit allen Einträgen herunter', 'Restore from a file': 'Aus Datei wiederherstellen', 'Replaces the data on this device': 'Ersetzt die Daten auf diesem Gerät', 'This file is not a VinnBudget backup.': 'Diese Datei ist keine VinnBudget-Sicherung.', 'Your data is saved only on this device, in this browser.': 'Deine Daten werden nur auf diesem Gerät gespeichert, in diesem Browser.', 'Settings': 'Einstellungen', 'Appearance': 'Darstellung', 'Changes are saved right away.': 'Änderungen werden sofort gespeichert.', 'Mode': 'Modus', 'Light': 'Hell', 'Dark': 'Dunkel', 'Fixed expense name': 'Name der Fixkosten', 'Close ›': 'Abschließen ›', 'Edit ›': 'Bearbeiten ›', 'Home': 'Start', 'Stats': 'Statistik', 'Budgets': 'Budgets', 'Nest egg': 'Reserve', 'Savings': 'Ersparnisse',
       'Fixed expenses': 'Fixkosten', 'Add expense': 'Ausgabe hinzufügen', 'Add income': 'Einnahme hinzufügen',
       'Edit expense': 'Ausgabe bearbeiten', 'Edit income': 'Einnahme bearbeiten', 'Expense': 'Ausgabe', 'Income': 'Einnahmen',
       'Today': 'Heute', 'Yesterday': 'Gestern', 'Cancel': 'Abbrechen', 'Save': 'Speichern', 'Delete': 'Löschen',
@@ -907,7 +916,7 @@ const I18N = {
       'United States': 'USA', 'Spain': 'Spanien', 'Ukraine': 'Ukraine'
     },
     uk: {
-      'Your data is saved only on this device, in this browser.': 'Ваші дані зберігаються лише на цьому пристрої, у цьому браузері.', 'Settings': 'Налаштування', 'Appearance': 'Оформлення', 'Changes are saved right away.': 'Зміни зберігаються одразу.', 'Mode': 'Режим', 'Auto': 'Авто', 'Light': 'Світлий', 'Dark': 'Темний', 'Fixed expense name': 'Назва постійної витрати', 'Close ›': 'Закрити ›', 'Edit ›': 'Змінити ›', 'Home': 'Головна', 'Stats': 'Аналіз', 'Budgets': 'Бюджети', 'Nest egg': 'Подушка', 'Savings': 'Заощадження',
+      'Backup': 'Резервна копія', 'Save a copy of your data as a file, or move it to another device.': 'Збережіть копію даних у файл або перенесіть їх на інший пристрій.', 'Save a backup': 'Зберегти копію', 'Downloads a file with all your entries': 'Завантажує файл з усіма записами', 'Restore from a file': 'Відновити з файлу', 'Replaces the data on this device': 'Замінює дані на цьому пристрої', 'This file is not a VinnBudget backup.': 'Цей файл не є копією VinnBudget.', 'Your data is saved only on this device, in this browser.': 'Ваші дані зберігаються лише на цьому пристрої, у цьому браузері.', 'Settings': 'Налаштування', 'Appearance': 'Оформлення', 'Changes are saved right away.': 'Зміни зберігаються одразу.', 'Mode': 'Режим', 'Auto': 'Авто', 'Light': 'Світлий', 'Dark': 'Темний', 'Fixed expense name': 'Назва постійної витрати', 'Close ›': 'Закрити ›', 'Edit ›': 'Змінити ›', 'Home': 'Головна', 'Stats': 'Аналіз', 'Budgets': 'Бюджети', 'Nest egg': 'Подушка', 'Savings': 'Заощадження',
       'Fixed expenses': 'Постійні витрати', 'Add expense': 'Додати витрату', 'Add income': 'Додати дохід',
       'Edit expense': 'Змінити витрату', 'Edit income': 'Змінити дохід', 'Expense': 'Витрата', 'Income': 'Дохід',
       'Today': 'Сьогодні', 'Yesterday': 'Учора', 'Cancel': 'Скасувати', 'Save': 'Зберегти', 'Delete': 'Видалити',
@@ -970,7 +979,7 @@ const I18N = {
       'United States': 'США', 'Spain': 'Іспанія', 'Ukraine': 'Україна'
     },
     es: {
-      'Your data is saved only on this device, in this browser.': 'Tus datos se guardan solo en este dispositivo, en este navegador.', 'Settings': 'Ajustes', 'Appearance': 'Apariencia', 'Changes are saved right away.': 'Los cambios se guardan al momento.', 'Mode': 'Modo', 'Light': 'Claro', 'Dark': 'Oscuro', 'Fixed expense name': 'Nombre del gasto fijo', 'Close ›': 'Cerrar ›', 'Edit ›': 'Editar ›', 'Home': 'Inicio', 'Stats': 'Análisis', 'Budgets': 'Límites', 'Nest egg': 'Colchón', 'Savings': 'Ahorros',
+      'Backup': 'Copia de seguridad', 'Save a copy of your data as a file, or move it to another device.': 'Guarda una copia de tus datos en un archivo o pásalos a otro dispositivo.', 'Save a backup': 'Guardar copia', 'Downloads a file with all your entries': 'Descarga un archivo con todas tus entradas', 'Restore from a file': 'Restaurar desde archivo', 'Replaces the data on this device': 'Reemplaza los datos de este dispositivo', 'This file is not a VinnBudget backup.': 'Este archivo no es una copia de VinnBudget.', 'Your data is saved only on this device, in this browser.': 'Tus datos se guardan solo en este dispositivo, en este navegador.', 'Settings': 'Ajustes', 'Appearance': 'Apariencia', 'Changes are saved right away.': 'Los cambios se guardan al momento.', 'Mode': 'Modo', 'Light': 'Claro', 'Dark': 'Oscuro', 'Fixed expense name': 'Nombre del gasto fijo', 'Close ›': 'Cerrar ›', 'Edit ›': 'Editar ›', 'Home': 'Inicio', 'Stats': 'Análisis', 'Budgets': 'Límites', 'Nest egg': 'Colchón', 'Savings': 'Ahorros',
       'Fixed expenses': 'Gastos fijos', 'Add expense': 'Añadir gasto', 'Add income': 'Añadir ingreso',
       'Edit expense': 'Editar gasto', 'Edit income': 'Editar ingreso', 'Expense': 'Gasto', 'Income': 'Ingresos',
       'Today': 'Hoy', 'Yesterday': 'Ayer', 'Cancel': 'Cancelar', 'Save': 'Guardar', 'Delete': 'Eliminar',
@@ -1111,6 +1120,7 @@ const I18N = {
     ['· {n} carried', {de: '· {n} übertragen', uk: '· {n} перенесено', es: '· {n} arrastrado'}],
     ['Amount in {c}', {de: 'Betrag in {c}', uk: 'Сума в {c}', es: 'Importe en {c}'}],
     // last: "A · B" — keeps the shape and translates each side ("Groceries · Today")
+    ['Replace the data on this device with the backup ({n} entries)?', {de: 'Daten auf diesem Gerät durch die Sicherung ersetzen ({n} Einträge)?', uk: 'Замінити дані на цьому пристрої копією ({n} записів)?', es: '¿Reemplazar los datos de este dispositivo por la copia ({n} entradas)?'}],
     ['{a} · {b}', {de: '{a} · {b}', uk: '{a} · {b}', es: '{a} · {b}'}]
   ],
 
@@ -2795,6 +2805,36 @@ const I18N = {
     catch (err) { $('set-msg').textContent = errorText(err); fillSettings(); }
   }
   $('open-settings').addEventListener('click', openSettings);
+
+  // backup (website only — on claude.ai the data is already kept in the account)
+  const BK_PRE = 'data/users/local/';
+  $('bk-export').addEventListener('click', () => {
+    let raw = {}; try { raw = JSON.parse(localStorage.getItem('vb-data')) || {}; } catch (e) {}
+    const out = {app: 'vinnbudget', version: 1, exportedAt: new Date().toISOString(), settings: raw[BK_PRE + 'settings'] || null, expenses: {}, months: {}};
+    for (const [k, v] of Object.entries(raw)) {
+      if (k.startsWith(BK_PRE + 'ledger/expenses/')) out.expenses[k.split('/').pop()] = v;
+      else if (k.startsWith(BK_PRE + 'ledger/months/')) out.months[k.split('/').pop()] = v;
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(out, null, 1)], {type: 'application/json'}));
+    a.download = `vinnbudget-backup-${todayStr()}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  });
+  $('bk-import').addEventListener('click', () => $('bk-file').click());
+  $('bk-file').addEventListener('change', async () => {
+    const f = $('bk-file').files[0]; $('bk-file').value = ''; if (!f) return;
+    let b; try { b = JSON.parse(await f.text()); } catch (e) { b = null; }
+    if (!b || b.app !== 'vinnbudget' || typeof b.expenses !== 'object') { $('set-msg').textContent = 'This file is not a VinnBudget backup.'; return; }
+    const n = Object.keys(b.expenses).length;
+    if (entries.length && !confirm(tr(`Replace the data on this device with the backup (${n} entries)?`))) return;
+    const data = {};
+    if (b.settings) data[BK_PRE + 'settings'] = b.settings;
+    for (const [id, v] of Object.entries(b.expenses || {})) data[BK_PRE + 'ledger/expenses/' + id] = v;
+    for (const [id, v] of Object.entries(b.months || {})) data[BK_PRE + 'ledger/months/' + id] = v;
+    try { localStorage.setItem('vb-data', JSON.stringify(data)); } catch (e) { $('set-msg').textContent = errorText({code: 'quota_exceeded'}); return; }
+    location.reload();
+  });
   $('set-lang').addEventListener('change', () => saveSetting({lang: $('set-lang').value}));
   $('set-cur').addEventListener('change', () => saveSetting({currency: $('set-cur').value}));
   $('set-country').addEventListener('change', () => saveSetting({country: $('set-country').value}));
@@ -3005,7 +3045,7 @@ const I18N = {
     render();
     const c = window.claude;
     let db = null, user = null, uid = null;
-    if (window.VB_WEB) { db = localDB(); uid = 'local'; $('set-local').hidden = false; }
+    if (window.VB_WEB) { db = localDB(); uid = 'local'; $('set-local').hidden = false; $('set-backup').hidden = false; }
     else {
       if (!c || typeof c.use !== 'function') { startDemo(); return; }
       try { [db, user] = await Promise.all([c.use('db'), c.use('user')]); } catch (e) {}
