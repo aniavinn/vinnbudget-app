@@ -173,7 +173,8 @@ h1,h2,p{margin:0}
 @media (prefers-reduced-motion: reduce){ .sheet{transform:translate(-50%,0);opacity:0;transition:opacity 150ms} .sheet.open{opacity:1} }
 .grab{display:flex;justify-content:center;padding:10px 0 6px;cursor:grab;touch-action:none}
 .grab span{width:36px;height:4px;border-radius:2px;background:var(--edge)}
-.sheet-head{display:flex;justify-content:space-between;align-items:center;touch-action:none;padding-bottom:4px}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;column-gap:12px;touch-action:none;padding-bottom:4px}
+#sheet-title{white-space:nowrap}  /* long titles (DE) push the type switch to its own line instead of breaking */
 .sheet-head h2{font-size:17px;font-weight:600}
 .seg{display:flex;gap:14px}
 .seg button{border:0;background:transparent;padding:6px 0;cursor:pointer;font-size:14px;color:var(--muted);transition:color var(--t-fast)}
@@ -442,6 +443,15 @@ input[type=range]#c-range::-moz-range-track{background:color-mix(in srgb,var(--c
 .variant .sw i{width:7px;height:7px;border-radius:50%}
 body{transition:background-color 500ms var(--ease-out),color 500ms var(--ease-out)}
 .variant + .variant{margin-top:10px}
+/* account choice in the add sheet */
+.acc-pick{margin-top:14px;display:grid;gap:8px}
+.acc-row{display:flex;align-items:center;gap:10px}
+.acc-l{font-size:13px;color:var(--muted);min-width:56px}
+.acc-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.acc-chips::-webkit-scrollbar{display:none}
+.acc-chips .chip.mini{height:34px;flex:none}
+.acc-chips .chip.mini[aria-pressed="true"]{border-color:var(--faint);background:var(--raised)}
+#v-accounts .quick{margin-top:10px}
 #v-settings .variant{margin-top:14px}
 .hdr-r{display:flex;align-items:center;gap:6px}
 .gear{width:36px;height:36px;margin-right:-8px;border:0;background:transparent;color:var(--muted);border-radius:50%;display:grid;place-items:center;cursor:pointer;transition:color var(--t-fast)}
@@ -497,7 +507,7 @@ button:active:not(:disabled),.tx:active,.close-row:active{transform:scale(.97)}
   .big{font-size:clamp(72px,7vw,104px)}
   .hero{margin-top:44px}
   .chart{height:240px}
-  #v-budgets,#v-savings,#v-plan,#v-close,#v-guide,#v-all,#v-settings{max-width:640px}
+  #v-budgets,#v-savings,#v-plan,#v-close,#v-guide,#v-all,#v-settings,#v-accounts{max-width:640px}
   .toast{bottom:32px;left:calc(50% + 114px)}
   /* Add opens as a centred window instead of a bottom sheet */
   .sheet{top:50%;bottom:auto;left:calc(50% + 114px);max-width:460px;border:1px solid var(--line);border-radius:20px;padding:6px 28px 24px;opacity:0;transform:translate(-50%,-47%) scale(.98);transition:transform var(--t-std) var(--ease-out),opacity var(--t-std) var(--ease-out)}
@@ -537,6 +547,7 @@ button:active:not(:disabled),.tx:active,.close-row:active{transform:scale(.97)}
     </div>
     <div class="acc breakdown" id="breakdown"><div class="acc-inner"><div id="breakdown-rows"></div></div></div>
     <button type="button" class="close-row" id="savings-row" style="margin-top:20px"><span><b>Savings</b><small id="savings-row-sub">Grows each time you close a month</small></span><span style="font-size:17px;font-weight:600;white-space:nowrap" id="savings-row-num">CHF 0</span></button>
+    <button type="button" class="close-row" id="accounts-row" style="margin-top:0;border-top:0" hidden><span style="min-width:0"><b>Accounts</b><small id="accounts-row-sub" translate="no"></small></span><span style="font-size:17px;font-weight:600;white-space:nowrap" id="accounts-row-num"></span></button>
     <button type="button" class="close-row" id="fixed-row" style="margin-top:0;border-top:0"><span style="min-width:0"><b>Fixed expenses</b><small id="fixed-row-sub">None yet. Tap to add rent, insurance…</small></span><span style="font-size:17px;font-weight:600;white-space:nowrap" id="fixed-row-num">CHF 0</span></button>
     <div id="close-slot"></div>
     </div><div class="col-side">
@@ -696,6 +707,33 @@ button:active:not(:disabled),.tx:active,.close-row:active{transform:scale(.97)}
     <p class="msg" id="plan-msg" role="alert"></p>
   </main>
 
+  <!-- ACCOUNTS -->
+  <main class="view" id="v-accounts" hidden aria-labelledby="acc-title">
+    <button class="txt-btn" data-go="home">‹ Home</button>
+    <h1 class="large-title" id="acc-title">Accounts</h1>
+    <div class="amount-line" style="margin-top:18px"><span class="cur">CHF</span><span class="big" id="acc-total">0</span></div>
+    <div class="hero-label">on all accounts</div>
+    <div id="acc-list" style="margin-top:22px;border-top:1px solid var(--line)"></div>
+    <div class="quick">
+      <button class="txt-btn ink" id="acc-add">Add account</button>
+      <button class="txt-btn ink" id="acc-transfer" hidden>Transfer</button>
+    </div>
+    <section class="block" id="acc-edit" hidden aria-labelledby="acc-edit-title">
+      <h2 class="section-title" id="acc-edit-title">New account</h2>
+      <div style="margin-top:8px;border-top:1px solid var(--line)">
+        <div class="plan-row"><label class="lbl" for="acc-name">Name</label><input class="name" id="acc-name" maxlength="30" autocomplete="off" placeholder="UBS, Revolut, Cash…"></div>
+        <div class="plan-row"><label class="lbl" for="acc-bal">Balance now</label><div class="money"><span>CHF</span><input id="acc-bal" inputmode="decimal" autocomplete="off" placeholder="0"></div></div>
+      </div>
+      <p class="msg" id="acc-msg" role="alert"></p>
+      <div class="quick">
+        <button class="txt-btn" id="acc-cancel">Cancel</button>
+        <button class="txt-btn ink" id="acc-save">Save</button>
+      </div>
+      <button class="txt-btn danger" id="acc-del" hidden style="display:block;margin-top:10px;font-size:14px">Delete account</button>
+    </section>
+    <p class="muted" style="font-size:13px;margin-top:26px;line-height:1.5">Balances count your income, expenses and transfers. Fixed expenses are not taken off. If a balance is not right, tap the account and enter what is on it now. Deleting an account keeps its entries; they move to the first account.</p>
+  </main>
+
   <!-- SETTINGS -->
   <main class="view" id="v-settings" hidden aria-labelledby="set-title">
     <button class="txt-btn" data-go="home">‹ Home</button>
@@ -708,6 +746,12 @@ button:active:not(:disabled),.tx:active,.close-row:active{transform:scale(.97)}
         <div class="plan-row"><label class="lbl" for="set-lang">Language</label><select id="set-lang" class="sel"></select></div>
         <div class="plan-row"><label class="lbl" for="set-cur">Currency</label><select id="set-cur" class="sel"></select></div>
         <div class="plan-row"><label class="lbl" for="set-country">Country</label><select id="set-country" class="sel"></select></div>
+      </div>
+    </section>
+    <section class="block" aria-labelledby="ac-title">
+      <h2 class="section-title" id="ac-title">Accounts</h2>
+      <div style="margin-top:8px;border-top:1px solid var(--line)">
+        <button type="button" class="close-row" id="set-accounts" style="margin-top:0;border-top:0"><span><b>Cards &amp; cash</b><small>Add accounts and see how much is on each</small></span><span class="go">›</span></button>
       </div>
     </section>
     <section class="block" aria-labelledby="ms-title">
@@ -787,6 +831,7 @@ button:active:not(:disabled),.tx:active,.close-row:active{transform:scale(.97)}
     <div class="seg" id="seg">
       <button type="button" data-type="expense" aria-pressed="true">Expense</button>
       <button type="button" data-type="income" aria-pressed="false">Income</button>
+      <button type="button" data-type="transfer" aria-pressed="false" id="seg-tr" hidden>Transfer</button>
     </div>
   </div>
   <div class="amt-row" id="amt-row">
@@ -795,6 +840,7 @@ button:active:not(:disabled),.tx:active,.close-row:active{transform:scale(.97)}
     <input id="amt" inputmode="none" readonly autocomplete="off" placeholder="0">
   </div>
   <div class="chips" id="chips" role="group" aria-label="Category"></div>
+  <div class="acc-pick" id="acc-pick" hidden></div>
   <div class="meta">
     <label for="note" class="sr">Note</label>
     <input class="note-in" id="note" maxlength="80" autocomplete="off" enterkeyhint="done" placeholder="Add note">
@@ -853,7 +899,7 @@ const I18N = {
 
   str: {
     de: {
-      'Backup': 'Sicherung', 'Save a copy of your data as a file, or move it to another device.': 'Speichere eine Kopie deiner Daten als Datei oder übertrage sie auf ein anderes Gerät.', 'Save a backup': 'Sicherung speichern', 'Downloads a file with all your entries': 'Lädt eine Datei mit allen Einträgen herunter', 'Restore from a file': 'Aus Datei wiederherstellen', 'Replaces the data on this device': 'Ersetzt die Daten auf diesem Gerät', 'This file is not a VinnBudget backup.': 'Diese Datei ist keine VinnBudget-Sicherung.', 'Your data is saved only on this device, in this browser.': 'Deine Daten werden nur auf diesem Gerät gespeichert, in diesem Browser.', 'Settings': 'Einstellungen', 'Appearance': 'Darstellung', 'Changes are saved right away.': 'Änderungen werden sofort gespeichert.', 'Mode': 'Modus', 'Light': 'Hell', 'Dark': 'Dunkel', 'Fixed expense name': 'Name der Fixkosten', 'Close ›': 'Abschließen ›', 'Edit ›': 'Bearbeiten ›', 'Home': 'Start', 'Stats': 'Statistik', 'Budgets': 'Budgets', 'Nest egg': 'Reserve', 'Savings': 'Ersparnisse',
+      'Transfer': 'Umbuchung', 'Add transfer': 'Neue Umbuchung', 'Edit transfer': 'Umbuchung ändern', 'From': 'Von', 'To': 'Nach', 'Account': 'Konto', 'Accounts': 'Konten', 'Choose two different accounts.': 'Wähle zwei verschiedene Konten.', 'on all accounts': 'auf allen Konten', 'Add account': 'Konto hinzufügen', 'New account': 'Neues Konto', 'Edit account': 'Konto bearbeiten', 'Name': 'Name', 'Balance now': 'Stand jetzt', 'Delete account': 'Konto löschen', 'No accounts yet. Add your cards and cash to see how much is on each.': 'Noch keine Konten. Füge Karten und Bargeld hinzu, um zu sehen, wie viel jeweils drauf ist.', 'Enter a name, like UBS or Cash.': 'Gib einen Namen ein, z. B. UBS oder Bargeld.', 'Enter the amount on this account now, like 1200.': 'Gib den aktuellen Stand ein, z. B. 1200.', 'Cards & cash': 'Karten & Bargeld', 'Add accounts and see how much is on each': 'Konten hinzufügen und Stände sehen', 'Balances count your income, expenses and transfers. Fixed expenses are not taken off. If a balance is not right, tap the account and enter what is on it now. Deleting an account keeps its entries; they move to the first account.': 'Die Stände zählen Einnahmen, Ausgaben und Umbuchungen. Fixkosten werden nicht abgezogen. Stimmt ein Stand nicht, tippe auf das Konto und gib den aktuellen Betrag ein. Beim Löschen eines Kontos bleiben die Einträge; sie gehören dann zum ersten Konto.', 'Backup': 'Sicherung', 'Save a copy of your data as a file, or move it to another device.': 'Speichere eine Kopie deiner Daten als Datei oder übertrage sie auf ein anderes Gerät.', 'Save a backup': 'Sicherung speichern', 'Downloads a file with all your entries': 'Lädt eine Datei mit allen Einträgen herunter', 'Restore from a file': 'Aus Datei wiederherstellen', 'Replaces the data on this device': 'Ersetzt die Daten auf diesem Gerät', 'This file is not a VinnBudget backup.': 'Diese Datei ist keine VinnBudget-Sicherung.', 'Your data is saved only on this device, in this browser.': 'Deine Daten werden nur auf diesem Gerät gespeichert, in diesem Browser.', 'Settings': 'Einstellungen', 'Appearance': 'Darstellung', 'Changes are saved right away.': 'Änderungen werden sofort gespeichert.', 'Mode': 'Modus', 'Light': 'Hell', 'Dark': 'Dunkel', 'Fixed expense name': 'Name der Fixkosten', 'Close ›': 'Abschließen ›', 'Edit ›': 'Bearbeiten ›', 'Home': 'Start', 'Stats': 'Statistik', 'Budgets': 'Budgets', 'Nest egg': 'Reserve', 'Savings': 'Ersparnisse',
       'Fixed expenses': 'Fixkosten', 'Add expense': 'Ausgabe hinzufügen', 'Add income': 'Einnahme hinzufügen',
       'Edit expense': 'Ausgabe bearbeiten', 'Edit income': 'Einnahme bearbeiten', 'Expense': 'Ausgabe', 'Income': 'Einnahmen',
       'Today': 'Heute', 'Yesterday': 'Gestern', 'Cancel': 'Abbrechen', 'Save': 'Speichern', 'Delete': 'Löschen',
@@ -916,7 +962,7 @@ const I18N = {
       'United States': 'USA', 'Spain': 'Spanien', 'Ukraine': 'Ukraine'
     },
     uk: {
-      'Backup': 'Резервна копія', 'Save a copy of your data as a file, or move it to another device.': 'Збережіть копію даних у файл або перенесіть їх на інший пристрій.', 'Save a backup': 'Зберегти копію', 'Downloads a file with all your entries': 'Завантажує файл з усіма записами', 'Restore from a file': 'Відновити з файлу', 'Replaces the data on this device': 'Замінює дані на цьому пристрої', 'This file is not a VinnBudget backup.': 'Цей файл не є копією VinnBudget.', 'Your data is saved only on this device, in this browser.': 'Ваші дані зберігаються лише на цьому пристрої, у цьому браузері.', 'Settings': 'Налаштування', 'Appearance': 'Оформлення', 'Changes are saved right away.': 'Зміни зберігаються одразу.', 'Mode': 'Режим', 'Auto': 'Авто', 'Light': 'Світлий', 'Dark': 'Темний', 'Fixed expense name': 'Назва постійної витрати', 'Close ›': 'Закрити ›', 'Edit ›': 'Змінити ›', 'Home': 'Головна', 'Stats': 'Аналіз', 'Budgets': 'Бюджети', 'Nest egg': 'Подушка', 'Savings': 'Заощадження',
+      'Transfer': 'Переказ', 'Add transfer': 'Додати переказ', 'Edit transfer': 'Змінити переказ', 'From': 'З', 'To': 'На', 'Account': 'Рахунок', 'Accounts': 'Рахунки', 'Choose two different accounts.': 'Виберіть два різні рахунки.', 'on all accounts': 'на всіх рахунках', 'Add account': 'Додати рахунок', 'New account': 'Новий рахунок', 'Edit account': 'Змінити рахунок', 'Name': 'Назва', 'Balance now': 'Залишок зараз', 'Delete account': 'Видалити рахунок', 'No accounts yet. Add your cards and cash to see how much is on each.': 'Рахунків поки немає. Додайте картки й готівку, щоб бачити, скільки на кожному.', 'Enter a name, like UBS or Cash.': 'Введіть назву, наприклад UBS або Готівка.', 'Enter the amount on this account now, like 1200.': 'Введіть, скільки зараз на рахунку, наприклад 1200.', 'Cards & cash': 'Картки й готівка', 'Add accounts and see how much is on each': 'Додайте рахунки й бачте залишок на кожному', 'Balances count your income, expenses and transfers. Fixed expenses are not taken off. If a balance is not right, tap the account and enter what is on it now. Deleting an account keeps its entries; they move to the first account.': 'Залишки враховують доходи, витрати й перекази. Постійні витрати не віднімаються. Якщо залишок неточний, торкніться рахунку й введіть, скільки на ньому зараз. Якщо видалити рахунок, записи залишаться й перейдуть на перший рахунок.', 'Backup': 'Резервна копія', 'Save a copy of your data as a file, or move it to another device.': 'Збережіть копію даних у файл або перенесіть їх на інший пристрій.', 'Save a backup': 'Зберегти копію', 'Downloads a file with all your entries': 'Завантажує файл з усіма записами', 'Restore from a file': 'Відновити з файлу', 'Replaces the data on this device': 'Замінює дані на цьому пристрої', 'This file is not a VinnBudget backup.': 'Цей файл не є копією VinnBudget.', 'Your data is saved only on this device, in this browser.': 'Ваші дані зберігаються лише на цьому пристрої, у цьому браузері.', 'Settings': 'Налаштування', 'Appearance': 'Оформлення', 'Changes are saved right away.': 'Зміни зберігаються одразу.', 'Mode': 'Режим', 'Auto': 'Авто', 'Light': 'Світлий', 'Dark': 'Темний', 'Fixed expense name': 'Назва постійної витрати', 'Close ›': 'Закрити ›', 'Edit ›': 'Змінити ›', 'Home': 'Головна', 'Stats': 'Аналіз', 'Budgets': 'Бюджети', 'Nest egg': 'Подушка', 'Savings': 'Заощадження',
       'Fixed expenses': 'Постійні витрати', 'Add expense': 'Додати витрату', 'Add income': 'Додати дохід',
       'Edit expense': 'Змінити витрату', 'Edit income': 'Змінити дохід', 'Expense': 'Витрата', 'Income': 'Дохід',
       'Today': 'Сьогодні', 'Yesterday': 'Учора', 'Cancel': 'Скасувати', 'Save': 'Зберегти', 'Delete': 'Видалити',
@@ -979,7 +1025,7 @@ const I18N = {
       'United States': 'США', 'Spain': 'Іспанія', 'Ukraine': 'Україна'
     },
     es: {
-      'Backup': 'Copia de seguridad', 'Save a copy of your data as a file, or move it to another device.': 'Guarda una copia de tus datos en un archivo o pásalos a otro dispositivo.', 'Save a backup': 'Guardar copia', 'Downloads a file with all your entries': 'Descarga un archivo con todas tus entradas', 'Restore from a file': 'Restaurar desde archivo', 'Replaces the data on this device': 'Reemplaza los datos de este dispositivo', 'This file is not a VinnBudget backup.': 'Este archivo no es una copia de VinnBudget.', 'Your data is saved only on this device, in this browser.': 'Tus datos se guardan solo en este dispositivo, en este navegador.', 'Settings': 'Ajustes', 'Appearance': 'Apariencia', 'Changes are saved right away.': 'Los cambios se guardan al momento.', 'Mode': 'Modo', 'Light': 'Claro', 'Dark': 'Oscuro', 'Fixed expense name': 'Nombre del gasto fijo', 'Close ›': 'Cerrar ›', 'Edit ›': 'Editar ›', 'Home': 'Inicio', 'Stats': 'Análisis', 'Budgets': 'Límites', 'Nest egg': 'Colchón', 'Savings': 'Ahorros',
+      'Transfer': 'Traspaso', 'Add transfer': 'Añadir traspaso', 'Edit transfer': 'Editar traspaso', 'From': 'De', 'To': 'A', 'Account': 'Cuenta', 'Accounts': 'Cuentas', 'Choose two different accounts.': 'Elige dos cuentas distintas.', 'on all accounts': 'en todas las cuentas', 'Add account': 'Añadir cuenta', 'New account': 'Nueva cuenta', 'Edit account': 'Editar cuenta', 'Name': 'Nombre', 'Balance now': 'Saldo actual', 'Delete account': 'Eliminar cuenta', 'No accounts yet. Add your cards and cash to see how much is on each.': 'Aún no hay cuentas. Añade tus tarjetas y efectivo para ver cuánto hay en cada una.', 'Enter a name, like UBS or Cash.': 'Escribe un nombre, como UBS o Efectivo.', 'Enter the amount on this account now, like 1200.': 'Escribe cuánto hay ahora, por ejemplo 1200.', 'Cards & cash': 'Tarjetas y efectivo', 'Add accounts and see how much is on each': 'Añade cuentas y mira cuánto hay en cada una', 'Balances count your income, expenses and transfers. Fixed expenses are not taken off. If a balance is not right, tap the account and enter what is on it now. Deleting an account keeps its entries; they move to the first account.': 'Los saldos cuentan ingresos, gastos y traspasos. Los gastos fijos no se restan. Si un saldo no cuadra, toca la cuenta y escribe cuánto hay ahora. Al eliminar una cuenta, sus entradas se quedan y pasan a la primera cuenta.', 'Backup': 'Copia de seguridad', 'Save a copy of your data as a file, or move it to another device.': 'Guarda una copia de tus datos en un archivo o pásalos a otro dispositivo.', 'Save a backup': 'Guardar copia', 'Downloads a file with all your entries': 'Descarga un archivo con todas tus entradas', 'Restore from a file': 'Restaurar desde archivo', 'Replaces the data on this device': 'Reemplaza los datos de este dispositivo', 'This file is not a VinnBudget backup.': 'Este archivo no es una copia de VinnBudget.', 'Your data is saved only on this device, in this browser.': 'Tus datos se guardan solo en este dispositivo, en este navegador.', 'Settings': 'Ajustes', 'Appearance': 'Apariencia', 'Changes are saved right away.': 'Los cambios se guardan al momento.', 'Mode': 'Modo', 'Light': 'Claro', 'Dark': 'Oscuro', 'Fixed expense name': 'Nombre del gasto fijo', 'Close ›': 'Cerrar ›', 'Edit ›': 'Editar ›', 'Home': 'Inicio', 'Stats': 'Análisis', 'Budgets': 'Límites', 'Nest egg': 'Colchón', 'Savings': 'Ahorros',
       'Fixed expenses': 'Gastos fijos', 'Add expense': 'Añadir gasto', 'Add income': 'Añadir ingreso',
       'Edit expense': 'Editar gasto', 'Edit income': 'Editar ingreso', 'Expense': 'Gasto', 'Income': 'Ingresos',
       'Today': 'Hoy', 'Yesterday': 'Ayer', 'Cancel': 'Cancelar', 'Save': 'Guardar', 'Delete': 'Eliminar',
@@ -1453,7 +1499,7 @@ const I18N = {
 (function(){
   const EXP = [{id:'groceries',name:'Groceries'},{id:'transport',name:'Transport'},{id:'travel',name:'Travel'},{id:'shopping',name:'Shopping'},{id:'goingout',name:'Going out'},{id:'internet',name:'Internet'},{id:'other',name:'Other'}];
   const INC = [{id:'salary',name:'Salary'},{id:'sidejob',name:'Side job'},{id:'gift',name:'Gift'},{id:'otherin',name:'Other income'}];
-  const CAT = Object.fromEntries([...EXP, ...INC, {id:'savings', name:'Savings'}].map(c => [c.id, c]));
+  const CAT = Object.fromEntries([...EXP, ...INC, {id:'savings', name:'Savings'}, {id:'transfer', name:'Transfer'}].map(c => [c.id, c]));
   const EXP_IDS = new Set(EXP.map(c => c.id)), INC_IDS = new Set(INC.map(c => c.id));
   const LEGACY = {food:'groceries', fun:'goingout', bills:'other', health:'other'};
   const T = {fast:180, std:300, data:450, large:550};
@@ -1635,6 +1681,22 @@ const I18N = {
   let hold = false, pendingRender = false, instantNumbers = false, arriveCarry = false;
   const expanded = new Set();
 
+  // accounts (cards, cash…): one shared budget; each entry says which account it used.
+  // Entries without an account belong to the first one. Balance = start + income − expenses ± transfers.
+  const accounts = () => settings.accounts || [];
+  const accOf = e => { const a = accounts(); return a.some(x => x.id === e.account) ? e.account : (a[0] || {}).id; };
+  const accName = id => (accounts().find(a => a.id === id) || {}).name || '';
+  function accMoves(id){
+    let t = 0; const first = (accounts()[0] || {}).id;
+    for (const e of entries) {
+      if (e.type === 'transfer') { if (e.to === id) t += e.amountCents; if (e.from === id) t -= e.amountCents; continue; }
+      if (e.type !== 'income' && e.type !== 'expense') continue;
+      if ((accounts().some(x => x.id === e.account) ? e.account : first) !== id) continue;
+      t += e.type === 'income' ? e.amountCents : -e.amountCents;
+    }
+    return t;
+  }
+  const accBalance = a => (a.startCents || 0) + accMoves(a.id);
   const fixedTotal = () => settings.fixed.reduce((s, f) => s + (f.amountCents || 0), 0);
   function stats(m){
     let inc = 0, out = 0, savedIn = 0, savedOut = 0, count = 0; const by = {};
@@ -1644,6 +1706,7 @@ const I18N = {
       if (e.type === 'income') inc += e.amountCents;
       else if (e.type === 'saving') { if (e.fromMonth) savedIn += e.amountCents; }
       else if (e.type === 'withdraw') { if (e.fromMonth) savedOut += e.amountCents; }
+      else if (e.type === 'transfer') { /* between own accounts: not spending */ }
       else { out += e.amountCents; by[e.category] = (by[e.category] || 0) + e.amountCents; }
     }
     const carry = (allocs[shift(m, -1)] || {}).toNext || 0;
@@ -1680,12 +1743,12 @@ const I18N = {
   }
 
   // ---------- navigation ----------
-  const TABBED = {home: 'home', stats: 'stats', budgets: 'home', savings: 'home', guide: 'home', all: 'home', settings: 'home'};
+  const TABBED = {home: 'home', stats: 'stats', budgets: 'home', savings: 'home', guide: 'home', all: 'home', settings: 'home', accounts: 'home'};
   function show(name, how){
     if (name !== view) {
       const prev = $('v-' + view), next = $('v-' + name);
       view = name;
-      ['home', 'stats', 'budgets', 'savings', 'guide', 'all', 'plan', 'settings', 'close'].forEach(v => { $('v-' + v).hidden = v !== name; });
+      ['home', 'stats', 'budgets', 'savings', 'guide', 'all', 'plan', 'settings', 'accounts', 'close'].forEach(v => { $('v-' + v).hidden = v !== name; });
       window.scrollTo({top: 0});
       if (reduced()) next.animate([{opacity: 0}, {opacity: 1}], {duration: 150});
       else if (how === 'forward') next.animate([{opacity: 0, transform: 'translateX(28px)'}, {opacity: 1, transform: 'none'}], {duration: T.large, easing: EASE});
@@ -1751,6 +1814,7 @@ const I18N = {
     if (view === 'savings') renderSavings();
     if (view === 'guide') renderGuide();
     if (view === 'all') renderAll();
+    if (view === 'accounts') renderAccounts();
   }
 
   function renderSavings(){
@@ -1834,6 +1898,14 @@ const I18N = {
     roll($('savings-row-num'), savingsTotal(), chf0);
     const closedCount = Object.keys(allocs).length;
     $('savings-row-sub').textContent = closedCount ? `${closedCount} ${closedCount === 1 ? 'month' : 'months'} closed` : 'Grows each time you close a month';
+
+    // accounts row (only once there is an account)
+    const accs = accounts();
+    $('accounts-row').hidden = !accs.length;
+    if (accs.length) {
+      $('accounts-row-num').textContent = chf0(accs.reduce((t, a) => t + accBalance(a), 0));
+      $('accounts-row-sub').textContent = accs.map(a => `${a.name} ${n0(accBalance(a))}`).join(' · ');
+    }
 
     // fixed expenses row
     $('fixed-row-num').textContent = settings.fixed.length ? chf0(fixedTotal()) : 'Add';
@@ -1931,9 +2003,14 @@ const I18N = {
     const [y, m, dd] = d.split('-').map(Number); return new Date(y, m - 1, dd).toLocaleDateString(LOC(), {weekday:'short', day:'numeric', month:'short'});
   }
   function txRow(e, opt){
+    if (e.type === 'transfer') {
+      const meta = opt && opt.noDate ? 'Transfer' : `Transfer · ${dayLabel(e.date)}`;
+      return `<button type="button" class="tx" data-id="${esc(e.id)}"><span class="tx-left"><span class="tx-name"><i class="tx-dot" style="background:var(--faint)"></i><span translate="no">${esc(e.note || accName(e.from) + ' → ' + accName(e.to))}</span></span><span class="tx-meta">${meta}</span></span><span class="tx-amt muted">${chfS(e.amountCents)}</span></button>`;
+    }
     const inc = e.type === 'income', sv = e.type === 'saving', wd = e.type === 'withdraw';
     const name = sv ? (e.note || (e.fromMonth ? 'Moved to savings' : 'Added to savings')) : wd ? (e.note || 'Taken from savings') : (e.note || CAT[e.category].name);
-    const meta = opt && opt.noDate ? CAT[e.category].name : `${CAT[e.category].name} · ${dayLabel(e.date)}`;
+    const where = accounts().length > 1 && (e.type === 'income' || e.type === 'expense') ? ` · ${esc(accName(accOf(e)))}` : '';
+    const meta = (opt && opt.noDate ? CAT[e.category].name : `${CAT[e.category].name} · ${dayLabel(e.date)}`) + where;
     return `<button type="button" class="tx" data-id="${esc(e.id)}"><span class="tx-left"><span class="tx-name"><i class="tx-dot" style="background:var(${inc ? '--c-left' : sv ? '--c-save' : wd ? '--c-carry' : '--c-spent'})"></i>${esc(name)}</span><span class="tx-meta">${meta}</span></span><span class="tx-amt">${inc ? '+ ' : sv ? '→ ' : wd ? '← ' : '− '}${chfS(e.amountCents)}</span></button>`;
   }
   const monthEntries = m => entries.filter(e => entryPeriod(e) === m).sort((a, b) => b.date.localeCompare(a.date) || (b.createdAt || 0) - (a.createdAt || 0));
@@ -2382,16 +2459,30 @@ const I18N = {
   });
 
   // ---------- add-expense bottom sheet ----------
+  let selAcc = null, selFrom = null, selTo = null;
+  function lastAcc(){ let v = null; try { v = localStorage.getItem('vb-last-acc'); } catch (e) {} return accounts().some(a => a.id === v) ? v : (accounts()[0] || {}).id || null; }
+  // account choice: one row for expense/income, From + To for a transfer (hidden with fewer than 2 accounts)
+  function paintAccPick(){
+    const a = accounts(), box = $('acc-pick');
+    const row = (label, key, sel) => `<div class="acc-row"><span class="acc-l">${label}</span><div class="acc-chips" data-pick="${key}">${a.map(x => `<button type="button" class="chip mini" data-acc="${esc(x.id)}" aria-pressed="${x.id === sel}" translate="no">${esc(x.name)}</button>`).join('')}</div></div>`;
+    box.hidden = a.length < 2;
+    box.innerHTML = a.length < 2 ? '' : entryType === 'transfer' ? row('From', 'from', selFrom) + row('To', 'to', selTo) : row('Account', 'acc', selAcc);
+  }
   function paintChips(){
+    $('chips').hidden = entryType === 'transfer';
+    paintAccPick();
     const list = entryType === 'income' ? INC : EXP;
     $('chips').innerHTML = list.map(c => `<button type="button" class="chip" data-cat="${c.id}" aria-pressed="${c.id === selCat}">${c.name}</button>`).join('');
   }
   function setType(t){
     entryType = t;
-    if (selCat && !(t === 'income' ? INC_IDS : EXP_IDS).has(selCat)) selCat = null;
+    if (t === 'transfer') selCat = 'transfer';
+    else if (selCat && !(t === 'income' ? INC_IDS : EXP_IDS).has(selCat)) selCat = null;
     document.querySelectorAll('#seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.type === t)));
-    $('sheet-title').textContent = (editingId ? 'Edit ' : 'Add ') + (t === 'income' ? 'income' : 'expense');
-    $('add-save-l').textContent = editingId ? 'Save changes' : (t === 'income' ? 'Add income' : 'Add expense');
+    const what = t === 'income' ? 'income' : t === 'transfer' ? 'transfer' : 'expense';
+    $('sheet-title').textContent = (editingId ? 'Edit ' : 'Add ') + what;
+    $('add-save-l').textContent = editingId ? 'Save changes' : 'Add ' + what;
+    $('seg-tr').hidden = accounts().length < 2;
     paintChips();
   }
   function dateLabel(d){
@@ -2535,6 +2626,9 @@ const I18N = {
     const e = id ? entries.find(x => x.id === id) : null;
     editingId = e ? e.id : null;
     selCat = e ? e.category : (type === 'income' ? 'salary' : null);
+    selAcc = e && e.type !== 'transfer' ? accOf(e) : lastAcc();
+    selFrom = e && e.type === 'transfer' ? e.from : lastAcc();
+    selTo = e && e.type === 'transfer' ? e.to : ((accounts().find(a => a.id !== selFrom) || {}).id || null);
     $('amt').value = e ? (e.amountCents / 100).toFixed(2).replace(/\.00$/, '') : '';
     $('note').value = e ? e.note : '';
     const cur = curMonth();
@@ -2573,6 +2667,12 @@ const I18N = {
   $('scrim').addEventListener('click', closeSheet);
   document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && sheetOpen) closeSheet(); });
   $('seg').addEventListener('click', ev => { const b = ev.target.closest('button'); if (b) { setType(b.dataset.type); haptic('light'); } });
+  $('acc-pick').addEventListener('click', ev => {
+    const b = ev.target.closest('[data-acc]'); if (!b) return;
+    const k = b.parentElement.dataset.pick, id = b.dataset.acc;
+    if (k === 'acc') selAcc = id; else if (k === 'from') { selFrom = id; if (selTo === id) selTo = (accounts().find(a => a.id !== id) || {}).id; } else { selTo = id; if (selFrom === id) selFrom = (accounts().find(a => a.id !== id) || {}).id; }
+    $('add-msg').textContent = ''; haptic('light'); paintAccPick();
+  });
   $('chips').addEventListener('click', ev => {
     const b = ev.target.closest('.chip'); if (!b) return;
     selCat = b.dataset.cat;
@@ -2665,10 +2765,14 @@ const I18N = {
     if (!(cents > 0)) { msg.textContent = 'Enter an amount, like 42.50.'; shakeAmt(); return; }
     if (cents > 100000000) { msg.textContent = `Enter an amount below ${chf0(100000000)}.`; return; }
     if (!selCat) { msg.textContent = 'Choose a category.'; haptic('light'); return; }
+    if (entryType === 'transfer' && (!selFrom || !selTo || selFrom === selTo)) { msg.textContent = 'Choose two different accounts.'; haptic('light'); return; }
     const date = $('date').value || todayStr();
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { msg.textContent = 'Pick a valid date.'; return; }
     if (mode === 'loading') { msg.textContent = 'Still connecting. Try again in a moment.'; return; }
     const body = {type: entryType, amountCents: cents, category: selCat, note: $('note').value.trim().slice(0, 80), date};
+    if (entryType === 'transfer') { body.from = selFrom; body.to = selTo; }
+    else if (selAcc) body.account = selAcc;
+    try { localStorage.setItem('vb-last-acc', entryType === 'transfer' ? selFrom : selAcc || ''); } catch (e) {}
     const wasEdit = !!editingId, editId = editingId;
     const m = entryPeriod({type: entryType, category: selCat, date}), cur = lastMonth() > m ? lastMonth() : m;
 
@@ -2840,6 +2944,55 @@ const I18N = {
   $('set-country').addEventListener('change', () => saveSetting({country: $('set-country').value}));
   $('month-start').addEventListener('change', () => { monthStartHint(); saveSetting({monthStart: Number($('month-start').value) || 1}); });
 
+  // ---------- accounts screen: balances, add/edit, transfer ----------
+  let accEdit = null, accArmed = false;   // null = closed, '' = new account, id = editing
+  function renderAccounts(){
+    const a = accounts();
+    roll($('acc-total'), a.reduce((t, x) => t + accBalance(x), 0), n0);
+    $('acc-list').innerHTML = a.length ? a.map(x => `<button type="button" class="close-row acc-item" data-acc-edit="${esc(x.id)}" style="margin-top:0;border-top:0"><span translate="no"><b>${esc(x.name)}</b></span><span class="g-val">${chf0(accBalance(x))}</span></button>`).join('')
+      : '<p class="empty">No accounts yet. Add your cards and cash to see how much is on each.</p>';
+    $('acc-transfer').hidden = a.length < 2;
+  }
+  function openAccEdit(id){
+    accEdit = id; accArmed = false;
+    const x = accounts().find(a => a.id === id);
+    $('acc-edit').hidden = false;
+    $('acc-edit-title').textContent = x ? 'Edit account' : 'New account';
+    $('acc-name').value = x ? x.name : '';
+    $('acc-bal').value = x ? (accBalance(x) / 100).toString() : '';
+    $('acc-del').hidden = !x; $('acc-del').textContent = 'Delete account';
+    $('acc-msg').textContent = '';
+    $('acc-edit').scrollIntoView({block: 'nearest', behavior: reduced() ? 'auto' : 'smooth'});
+    $('acc-name').focus({preventScroll: true});
+  }
+  $('accounts-row').addEventListener('click', () => show('accounts', 'forward'));
+  $('set-accounts').addEventListener('click', () => show('accounts', 'forward'));
+  $('acc-add').addEventListener('click', () => openAccEdit(''));
+  $('acc-list').addEventListener('click', ev => { const b = ev.target.closest('[data-acc-edit]'); if (b) openAccEdit(b.dataset.accEdit); });
+  $('acc-cancel').addEventListener('click', () => { accEdit = null; $('acc-edit').hidden = true; });
+  $('acc-transfer').addEventListener('click', () => openSheet(null, 'transfer', null));
+  $('acc-save').addEventListener('click', async () => {
+    const name = $('acc-name').value.trim().slice(0, 30);
+    if (!name) { $('acc-msg').textContent = 'Enter a name, like UBS or Cash.'; return; }
+    const raw = $('acc-bal').value.trim(), now = raw ? parseMoney(raw) : 0;
+    if (!Number.isFinite(now)) { $('acc-msg').textContent = 'Enter the amount on this account now, like 1200.'; return; }
+    const list = accounts().map(a => ({...a}));
+    let x = list.find(a => a.id === accEdit);
+    if (!x) { x = {id: uid8(), name, startCents: 0}; list.push(x); }
+    x.name = name;
+    x.startCents = 0; x.startCents = now - accMoves(x.id);   // "balance now" is what the user sees today
+    const body = {...settings, accounts: list};
+    try { if (mode === 'live') await settingsRef.set(body); applySettings(body); accEdit = null; $('acc-edit').hidden = true; toast('Saved'); render(); }
+    catch (err) { $('acc-msg').textContent = errorText(err); }
+  });
+  $('acc-del').addEventListener('click', async () => {
+    if (!accArmed) { accArmed = true; $('acc-del').textContent = 'Tap again to delete'; return; }
+    const body = {...settings, accounts: accounts().filter(a => a.id !== accEdit)};
+    try { if (mode === 'live') await settingsRef.set(body); applySettings(body); accEdit = null; $('acc-edit').hidden = true; toast('Deleted'); render(); }
+    catch (err) { $('acc-msg').textContent = errorText(err); }
+  });
+  ['acc-name', 'acc-bal'].forEach(id => $(id).addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); $('acc-save').click(); } }));
+
   // ---------- month close ----------
   let pool = 0, sav = 0;
   function paintAlloc(from){
@@ -2941,7 +3094,9 @@ const I18N = {
     const country = d && (I18N.countries[d.country] || d.country === 'other') ? d.country : 'CH';
     const lang = d && I18N.langs[d.lang] ? d.lang : 'en';
     const currency = d && I18N.currencies.includes(d.currency) ? d.currency : 'CHF';
-    return {categories, fixed, savingsStart, monthStart, country, lang, currency};
+    const accounts = Array.isArray(d && d.accounts) ? d.accounts.filter(a => a && typeof a.id === 'string' && typeof a.name === 'string')
+      .map(a => ({id: a.id, name: a.name.slice(0, 30), startCents: typeof a.startCents === 'number' ? Math.round(a.startCents) : 0})) : [];
+    return {categories, fixed, savingsStart, monthStart, country, lang, currency, accounts};
   }
   function applySettings(next){
     const wasCurrent = viewMonth === curMonth(), was = LANG() + ccy();
@@ -2963,10 +3118,12 @@ const I18N = {
     const d = doc.data() || {};
     if (typeof d.amountCents !== 'number' || typeof d.date !== 'string') return null;
     if (d.type === 'saving' || d.type === 'withdraw') return {id: doc.id, type: d.type, amountCents: d.amountCents, category: 'savings', fromMonth: d.fromMonth !== false, note: typeof d.note === 'string' ? d.note : '', date: d.date, createdAt: d.createdAt || 0};
+    const acc = typeof d.account === 'string' ? {account: d.account} : {};
+    if (d.type === 'transfer') return {id: doc.id, type: 'transfer', amountCents: d.amountCents, category: 'transfer', from: String(d.from || ''), to: String(d.to || ''), note: typeof d.note === 'string' ? d.note : '', date: d.date, createdAt: d.createdAt || 0};
     const type = d.type === 'income' ? 'income' : 'expense';
     let cat = LEGACY[d.category] || d.category;
     if (!(type === 'income' ? INC_IDS : EXP_IDS).has(cat)) cat = type === 'income' ? 'otherin' : 'other';
-    return {id: doc.id, type, amountCents: d.amountCents, category: cat, note: typeof d.note === 'string' ? d.note : '', date: d.date, createdAt: d.createdAt || 0};
+    return {id: doc.id, type, amountCents: d.amountCents, category: cat, note: typeof d.note === 'string' ? d.note : '', date: d.date, createdAt: d.createdAt || 0, ...acc};
   }
   function normalizeAlloc(d){ const n = v => typeof v === 'number' && v > 0 ? Math.round(v) : 0; return {toSavings: n(d && d.toSavings), toNext: n(d && d.toNext)}; }
 
@@ -2974,7 +3131,7 @@ const I18N = {
     mode = 'demo';
     const cur = curMonth(), now = new Date();
     const day = back => ymd(new Date(now.getFullYear(), now.getMonth(), Math.max(1, now.getDate() - back)));
-    settings = {...settings, categories: {groceries: 50000, transport: 9000, travel: 40000, shopping: 30000, goingout: 25000, internet: 6000, other: 15000},
+    settings = {...settings, accounts: [{id: 'a1', name: 'UBS', startCents: -3420000}, {id: 'a2', name: 'Revolut', startCents: 30000}, {id: 'a3', name: 'Cash', startCents: 8000}], categories: {groceries: 50000, transport: 9000, travel: 40000, shopping: 30000, goingout: 25000, internet: 6000, other: 15000},
       fixed: [{id: 'f1', name: 'Rent', amountCents: 185000}, {id: 'f2', name: 'Health insurance', amountCents: 42000}, {id: 'f3', name: 'Phone & internet', amountCents: 7000}, {id: 'f4', name: 'Tax provision', amountCents: 24000}]};
     const e = []; let k = 0;
     const add = (type, cents, cat, note, date) => e.push({id: 'demo' + (k++), type, amountCents: cents, category: cat, note, date, createdAt: k});
